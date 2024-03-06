@@ -9,7 +9,7 @@
 # 版本自己选择
 # 里面自带yolov5-6.1的全部工程文件
 # https://hub.docker.com/r/ultralytics/yolov5/tags
-sudo docker pull ultralytics/yolov5:v6.1
+  sudo docker pull ultralytics/yolov5:v6.1
 ```
 
 

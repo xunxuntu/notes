@@ -45,6 +45,10 @@ docker port <container_id_or_name>
 
 
 
+# docker 换源
+
+[配置国内Docker镜像源 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/670743587)
+
 
 
 
