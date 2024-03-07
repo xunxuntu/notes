@@ -47,7 +47,11 @@ docker port <container_id_or_name>
 
 # docker 换源
 
-[配置国内Docker镜像源 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/670743587)
+[docker pull使用国内镜像加速也十分慢的解决办法 - Right2014 - 博客园 (cnblogs.com)](https://www.cnblogs.com/ALice1024/p/17242552.html)
+
+https://hdke96g2.mirror.aliyuncs.com
+
+[容器镜像服务 (aliyun.com)](https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors?accounttraceid=0d67d04e3a824605b9576bb9d6e1c1abzufv)
 
 
 
