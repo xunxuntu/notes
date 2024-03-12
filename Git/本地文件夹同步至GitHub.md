@@ -1,3 +1,59 @@
+# 在一台新电脑上克隆远端仓库实现git push 和 git pull
+
+## 0、前提【题外话】
+
+1. 在Ubuntu上安装梯子
+   1. 参考视频 https://www.youtube.com/watch?v=pTlso8m_iRk
+2. 给git设置代理
+   1. 参考链接 https://www.cnblogs.com/lovesKey/p/10934415.html
+      1. 只需要在终端中执行 `git config --global https.proxy http://127.0.0.1:7890 ` 这一条命令就行了。
+
+
+
+## 1、亲测有效
+
+```
+cd /home/simle/start_again
+
+git clone https://github.com/xunxuntu/F.git
+
+# 配置好注册邮箱和用户名
+git config --global user.email "xunxunxun.tu@gmail.com"
+git config --global user.name "xunxuntu"
+# 生成ssh key （git绑定的邮箱）
+ssh-keygen -t rsa -C "xunxunxun.tu@gmail.com"
+
+# 绑定公钥
+cd ~/.ssh/
+cat id_rsa.pub
+# 将得到的公钥绑定在 github ssh key 上面
+
+# 修改 .git 里面的配置文件,不知道为什么这样做，但是这样做有效
+## 参考链接 https://blog.csdn.net/lipengshiwo/article/details/89791187
+nano .git/config
+修改为 git@github.com:XXXX/project.git
+
+# 最后测试
+ssh -T git@github.com
+## 看到 Hi xunxuntu! You've successfully authenticated, but GitHub does not provide shell access. 就说明成功了。
+
+# 接下来就是常规操作了
+touch test.txt # 随便添加一些内容
+
+git add .
+git commit -m '4060ti'
+git push
+
+git pull
+
+```
+
+
+
+
+
+
+
 # 使用Git将本地文件夹同步至github
 
 【参考链接】https://blog.csdn.net/Sarah_LZ/article/details/119601673
