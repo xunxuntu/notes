@@ -57,6 +57,16 @@ https://hdke96g2.mirror.aliyuncs.com
 
 
 
+# docker镜像下载到本地，并导入其他服务器
+
+
+
+https://blog.csdn.net/muriyue6/article/details/120201644
+
+
+
+
+
 
 
 ![image-20240304161910014](./assets/image-20240304161910014.png)
