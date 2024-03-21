@@ -1,5 +1,26 @@
 
 
+
+
+
+
+
+
+
+
+# nautilus
+
+```
+# 打开当前文件夹/文件 命令
+nautilus ./
+```
+
+
+
+
+
+
+
 # mv
 
 https://cloud.tencent.com/developer/article/2147337
@@ -29,6 +50,9 @@ cp -r folder1 folder2 folder3 destination_folder/
 # find
 
 ```shell
+查找目录：find /（查找范围） -name '查找关键字' -type d
+查找文件：find /（查找范围） -name 查找关键字 -print
+
 find / -name "libmyelin.so.1" 2>/dev/null
 
 find: 这是一个用于在文件系统中搜索文件和目录的命令。它会遍历指定的路径以查找符合条件的文件或目录。
@@ -119,6 +143,9 @@ scp -r root@172.16.210.212:/home/tuc/yolov5-6.1/runs/detect/exp7
 #  df、du
 
 ```shell
+# 查看某一文件夹下的大小状态和其一级目录下的子文件夹大小
+du -d 1 -h /path --all
+
 # 查看硬盘的总空间
 lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT
 
