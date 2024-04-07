@@ -830,20 +830,20 @@ if __name__ == '__main__':
     #                        handicap_lose_sp=None, handicap_lose_sp_fluctuation=None)
 
     # 筛选特殊 sp 值的场次
-    find_special_sp_matches()
+    # find_special_sp_matches()
 
-    # # 查找自定义范围 sp 值的场次
+    # # # 查找自定义范围 sp 值的场次
     # search_specify_sp(xlsx_path=r'./all_games.xlsx', sheet_name="all",
-    #                   output_xlsx_file='sp_win_1.9_game.xlsx')
-
-    # # 查找自定义范围 handicap_sp 值的场次
+    #                   output_xlsx_file='sp_around_1.5_game.xlsx')
+    #
+    # # # 查找自定义范围 handicap_sp 值的场次
     # search_specify_handicap_sp(xlsx_path=r'./all_games.xlsx', sheet_name="all",
     #                            output_xlsx_file='handicap_sp_low_1.5_game.xlsx')
 
     # 标记赛果的胜平负(正反路)
-    # mark_pos_neg_outcome(xlsx_path='all_games.xlsx',
-    #                      sheet_name="all",
-    #                      output_xlsx_file='all_games_marked_pos_neg.xlsx')
+    mark_pos_neg_outcome(xlsx_path='sp_around_1.5_game.xlsx',
+                         sheet_name="all",
+                         output_xlsx_file='sp_around_1.5_marked_pos_neg.xlsx')
 
     # # 标记赛果的盘口胜平负(正反路)
     # mark_handicap_pos_neg_outcome(xlsx_path='all_games.xlsx',
