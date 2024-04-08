@@ -545,7 +545,7 @@ def format_excel(excel_file):
     # 保存表格
     workbook.save(excel_file)
     workbook.close()
-    # print(f'表格保存路径: {excel_file}')
+    print(f'美化表格保存路径: {excel_file}')
 
 
 def find_custom_sp_matches(win_sp=None, win_sp_fluctuation=None,
@@ -778,7 +778,7 @@ def find_special_sp_matches():
 
     # 筛选 handicap_sp 值低于1.5的场次
     # 查找 让胜 或者 让负 在低于 1.5 之下的df
-    threshold_num = 1.5
+    threshold_num = 1.4
     special_sp_df = pd.DataFrame()
     for i in range(1, len(df), 2):
         # print(i)
@@ -788,7 +788,7 @@ def find_special_sp_matches():
             special_sp_df = special_sp_df.append([df.loc[i - 1], df.loc[i]], ignore_index=True)
 
     # 导出为 excel
-    special_sp_excel = 'handicap_sp_low_1.5_matches.xlsx'
+    special_sp_excel = '让球sp小于1.4场次.xlsx'
     special_sp_df.to_excel(special_sp_excel, index=False)
 
     # 美化 excel
@@ -798,6 +798,39 @@ def find_special_sp_matches():
     mark_handicap_pos_neg_outcome(xlsx_path=special_sp_excel,
                                   sheet_name="Sheet1",
                                   output_xlsx_file=special_sp_excel)
+
+
+def find_around_sp_matches():
+    """
+        查找胜 or 负 sp在1.4以下的比赛
+    :return:
+    """
+    xlsx_file = r'all_games.xlsx'
+    df = pd.read_excel(xlsx_file, sheet_name='all')
+
+    # 筛选 胜or负 sp 值低于1.4的场次
+    threshold_num = 1.4
+    special_sp_df = pd.DataFrame()
+    for i in range(1, len(df), 2):
+        # print(i)
+        # print(df.loc[i-1, '负'])
+        # print(type(df.loc[i, '负']))
+        if df.loc[i - 1, '负'] == '未开售':
+            continue
+        if df.loc[i - 1, '负'] <= threshold_num or df.loc[i - 1, '胜'] <= threshold_num:
+            special_sp_df = special_sp_df.append([df.loc[i - 1], df.loc[i]], ignore_index=True)
+
+    # 导出为 excel
+    special_sp_excel = '胜or负sp小于1.4场次.xlsx'
+    special_sp_df.to_excel(special_sp_excel, index=False)
+
+    # 美化 excel
+    format_excel(special_sp_excel)
+
+    # sp 正反路标记统计
+    mark_pos_neg_outcome(xlsx_path=special_sp_excel,
+                         sheet_name="Sheet1",
+                         output_xlsx_file=special_sp_excel)
 
 
 # def match_analysis(win_sp=None, win_sp_fluctuation=None,
@@ -812,6 +845,411 @@ def find_special_sp_matches():
 #     """
 
 
+def get_double_draw():
+    """
+    获取比赛中双平的场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-shuang_ping.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score + handicap_score == away_score or home_score == away_score:
+            # 双平局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_loss_handicap_loss():
+    """
+        获取比赛中负 让负的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-furangfu.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score < away_score and home_score + handicap_score < away_score:
+            # 负 让负局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_win_handicap_win():
+    """
+       获取比赛中胜-让胜的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-shrangsh2.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score > away_score and home_score + handicap_score > away_score:
+            # 胜 让胜局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_win_handicap_lose():
+    """
+        获取比赛中胜-让负的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-shrangfu.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score > away_score and home_score + handicap_score < away_score:
+            # 胜 让负局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_lose_handicap_win():
+    """
+        获取比赛中负-让胜的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-furangsh.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score < away_score and home_score + handicap_score > away_score:
+            # 负 让胜局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_handicap_lose():
+    """
+        获取比赛中让负的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-rangfu.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score + handicap_score < away_score:
+            # 让负局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_handicap_win():
+    """
+        获取比赛中让胜的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-rangsh.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score + handicap_score > away_score:
+            # 让胜局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def get_handicap_draw():
+    """
+        获取比赛中让平的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-rangdraw.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score + handicap_score == away_score:
+            # 让平局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
+def find_rangp_2_ball_matches():
+    """
+        获取比赛中让平或者2球的比赛场次
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = 'pd-rangdraw-6balls.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        print(f'num: {num}')
+        score = df.at[num, '比分']
+        print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+        home_score, away_score = map(int, str(score).split(':'))
+        print(f'home_score: {home_score}, away_score: {away_score}')
+
+        # 让球
+        handicap_score = df.at[num + 1, '让球']
+        if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            if handicap_score[:3] == " 单关":
+                handicap_score = int(handicap_score[3:])
+        else:
+            handicap_score = int(handicap_score)
+
+        if home_score + handicap_score == away_score or home_score + away_score == 6:
+            # 让平 or 2球 的局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
 if __name__ == '__main__':
     # 场次分析
     # match_analysis(win_sp=2.2, win_sp_fluctuation=None,
@@ -822,14 +1260,15 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    # find_custom_sp_matches(win_sp=None, win_sp_fluctuation=None,
-    #                        draw_sp=None, draw_sp_fluctuation=None,
-    #                        lose_sp=1.95, lose_sp_fluctuation=0.01,
-    #                        handicap_win_sp=1.62, handicap_win_sp_fluctuation=0.01,
-    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-    #                        handicap_lose_sp=None, handicap_lose_sp_fluctuation=None)
+    find_custom_sp_matches(win_sp=1.75, win_sp_fluctuation=0.03,
+                           draw_sp=None, draw_sp_fluctuation=None,
+                           lose_sp=None, lose_sp_fluctuation=None,
+                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+                           handicap_lose_sp=1.85, handicap_lose_sp_fluctuation=0.03)
 
     # 筛选特殊 sp 值的场次
+    # 让球sp小于1.5的场次
     # find_special_sp_matches()
 
     # # # 查找自定义范围 sp 值的场次
@@ -841,11 +1280,43 @@ if __name__ == '__main__':
     #                            output_xlsx_file='handicap_sp_low_1.5_game.xlsx')
 
     # 标记赛果的胜平负(正反路)
-    mark_pos_neg_outcome(xlsx_path='sp_around_1.5_game.xlsx',
-                         sheet_name="all",
-                         output_xlsx_file='sp_around_1.5_marked_pos_neg.xlsx')
+    # mark_pos_neg_outcome(xlsx_path='sp_around_1.5_game.xlsx',
+    #                      sheet_name="all",
+    #                      output_xlsx_file='sp_around_1.5_marked_pos_neg.xlsx')
 
     # # 标记赛果的盘口胜平负(正反路)
     # mark_handicap_pos_neg_outcome(xlsx_path='all_games.xlsx',
     #                               sheet_name="all",
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
+
+    # 获取双平的比赛数量
+    # get_double_draw()
+
+    # 获取比赛中负-让负的比赛场次
+    # get_loss_handicap_loss()
+
+    # 获取比赛中胜-让胜的比赛场次
+    # get_win_handicap_win()
+
+    # 获取比赛中胜-让负的比赛场次
+    # get_win_handicap_lose()
+
+    # 获取比赛中负 - 让胜的比赛场次
+    # get_lose_handicap_win()
+
+    # 获取比赛中让负的比赛场次
+    # get_handicap_lose()
+
+    # 获取比赛中让胜的比赛场次
+    # get_handicap_win()
+
+    # 获取比赛中让平的比赛场次
+    # get_handicap_draw()
+
+    # 获取胜or负sp小于1.4的比赛场次
+    # find_around_sp_matches()
+
+    # 获取让平或者2球的比赛场次
+    # find_rangp_2_ball_matches()
+
+
