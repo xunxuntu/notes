@@ -1302,14 +1302,14 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    # outputs_excel = r'主胜1.55浮动0.02.xlsx'
-    # find_custom_sp_matches(outputs_excel,
-    #                        win_sp=1.55, win_sp_fluctuation=0.02,
-    #                        draw_sp=None, draw_sp_fluctuation=None,
-    #                        lose_sp=None, lose_sp_fluctuation=None,
-    #                        handicap_win_sp=None, handicap_win_sp_fluctuation=None,
-    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-    #                        handicap_lose_sp=None, handicap_lose_sp_fluctuation=None)
+    outputs_excel = r'周三001-1.xlsx'
+    find_custom_sp_matches(outputs_excel,
+                           win_sp=1.72, win_sp_fluctuation=0.02,
+                           draw_sp=None, draw_sp_fluctuation=None,
+                           lose_sp=None, lose_sp_fluctuation=None,
+                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+                           handicap_lose_sp=1.83, handicap_lose_sp_fluctuation=0.02)
 
     # 筛选特殊 sp 值的场次
     # 让球sp小于1.5的场次
@@ -1334,7 +1334,7 @@ if __name__ == '__main__':
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
 
     # 获取双平的比赛数量
-    get_double_draw()
+    # get_double_draw()
 
     # 获取比赛中负-让负的比赛场次
     # get_loss_handicap_loss()
