@@ -548,12 +548,14 @@ def format_excel(excel_file):
     print(f'美化表格保存路径: {excel_file}')
 
 
-def find_custom_sp_matches(win_sp=None, win_sp_fluctuation=None,
+def find_custom_sp_matches(custom_sp_excel,
+                           win_sp=None, win_sp_fluctuation=None,
                            draw_sp=None, draw_sp_fluctuation=None,
                            lose_sp=None, lose_sp_fluctuation=None,
                            handicap_win_sp=None, handicap_win_sp_fluctuation=None,
                            handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-                           handicap_lose_sp=None, handicap_lose_sp_fluctuation=None):
+                           handicap_lose_sp=None, handicap_lose_sp_fluctuation=None
+                           ):
     """
         在 all_games.xlsx 中查找相近 sp 值的场次
         【使用pandas实现】
@@ -754,7 +756,7 @@ def find_custom_sp_matches(win_sp=None, win_sp_fluctuation=None,
                         custom_sp_df = custom_sp_df.append([df.loc[i], df.loc[i + 1]], ignore_index=True)
 
     # 导出为 excel
-    custom_sp_excel = 'custom_sp_df.xlsx'
+    # custom_sp_excel = 'custom_sp_df.xlsx'
     custom_sp_df.to_excel(custom_sp_excel, index=False)
 
     # 美化 excel
@@ -851,7 +853,7 @@ def get_double_draw():
     :return:
     """
     excel_file = r'all_games.xlsx'
-    output_xlsx_file = 'pd-shuang_ping.xlsx'
+    output_xlsx_file = '双平-04-09-2.xlsx'
 
     # 读取原始 Excel 文件
     df = pd.read_excel(excel_file)
@@ -861,15 +863,15 @@ def get_double_draw():
 
     num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
     for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
-        print(f'num: {num}')
+        # print(f'num: {num}')
         score = df.at[num, '比分']
-        print(f'score: {score}')
+        # print(f'score: {score}')
         if pd.isna(score):
             continue  # 跳过NaN值的处理
         if score == 'VS':
             continue
         home_score, away_score = map(int, str(score).split(':'))
-        print(f'home_score: {home_score}, away_score: {away_score}')
+        # print(f'home_score: {home_score}, away_score: {away_score}')
 
         # 让球
         handicap_score = df.at[num + 1, '让球']
@@ -882,6 +884,11 @@ def get_double_draw():
         if home_score + handicap_score == away_score or home_score == away_score:
             # 双平局
             new_df = new_df.append(df.iloc[num:num + 2])
+
+    match_count = new_df['比分'].count()
+    all_match_count = df['比分'].count()
+    percentage = match_count / all_match_count * 100
+    print(f"双平场次: {match_count}, 占比: {percentage:.1f}%", )
 
     # 保存新文件
     new_df.to_excel(output_xlsx_file, index=False)
@@ -1250,6 +1257,41 @@ def find_rangp_2_ball_matches():
     format_excel(output_xlsx_file)
 
 
+def get_goat_matches():
+    """
+        获取进球数的分布
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = '7+-goat-matches.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    new_df = pd.DataFrame(columns=df.columns)
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        # print(f'num: {num}')
+        score = df.at[num, '比分']
+        # print(f'score: {score}')
+        if pd.isna(score):
+            continue  # 跳过NaN值的处理
+        if score == 'VS':
+            continue
+
+        home_score, away_score = map(int, str(score).split(':'))
+        if home_score + away_score >= 7:
+            # 进球数是 2/3 球的局
+            new_df = new_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    new_df.to_excel(output_xlsx_file, index=False)
+
+    # 美化 excel
+    format_excel(output_xlsx_file)
+
+
 if __name__ == '__main__':
     # 场次分析
     # match_analysis(win_sp=2.2, win_sp_fluctuation=None,
@@ -1260,12 +1302,14 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    find_custom_sp_matches(win_sp=1.75, win_sp_fluctuation=0.03,
-                           draw_sp=None, draw_sp_fluctuation=None,
-                           lose_sp=None, lose_sp_fluctuation=None,
-                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
-                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-                           handicap_lose_sp=1.85, handicap_lose_sp_fluctuation=0.03)
+    # outputs_excel = r'主胜1.55浮动0.02.xlsx'
+    # find_custom_sp_matches(outputs_excel,
+    #                        win_sp=1.55, win_sp_fluctuation=0.02,
+    #                        draw_sp=None, draw_sp_fluctuation=None,
+    #                        lose_sp=None, lose_sp_fluctuation=None,
+    #                        handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+    #                        handicap_lose_sp=None, handicap_lose_sp_fluctuation=None)
 
     # 筛选特殊 sp 值的场次
     # 让球sp小于1.5的场次
@@ -1290,7 +1334,7 @@ if __name__ == '__main__':
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
 
     # 获取双平的比赛数量
-    # get_double_draw()
+    get_double_draw()
 
     # 获取比赛中负-让负的比赛场次
     # get_loss_handicap_loss()
@@ -1301,7 +1345,7 @@ if __name__ == '__main__':
     # 获取比赛中胜-让负的比赛场次
     # get_win_handicap_lose()
 
-    # 获取比赛中负 - 让胜的比赛场次
+    # 获取比赛中负-让胜的比赛场次
     # get_lose_handicap_win()
 
     # 获取比赛中让负的比赛场次
@@ -1319,4 +1363,5 @@ if __name__ == '__main__':
     # 获取让平或者2球的比赛场次
     # find_rangp_2_ball_matches()
 
-
+    # 获取进球数的分布
+    # get_goat_matches()
