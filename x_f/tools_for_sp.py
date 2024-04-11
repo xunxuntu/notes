@@ -9,6 +9,8 @@ import openpyxl
 import pandas as pd
 from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
 from tqdm import tqdm
+from datetime import datetime
+from pathlib import Path
 
 
 def mark_handicap_pos_neg_outcome(xlsx_path, sheet_name, output_xlsx_file):
@@ -770,7 +772,7 @@ def find_custom_sp_matches(custom_sp_excel,
     print(f'表格保存路径: {custom_sp_excel}')
 
 
-def find_special_sp_matches():
+def find_special_sp_matches(threshold_num):
     """
         查找特殊 sp 值的比赛
     :return:
@@ -780,7 +782,7 @@ def find_special_sp_matches():
 
     # 筛选 handicap_sp 值低于1.5的场次
     # 查找 让胜 或者 让负 在低于 1.5 之下的df
-    threshold_num = 1.4
+    # threshold_num = 1.4
     special_sp_df = pd.DataFrame()
     for i in range(1, len(df), 2):
         # print(i)
@@ -790,7 +792,10 @@ def find_special_sp_matches():
             special_sp_df = special_sp_df.append([df.loc[i - 1], df.loc[i]], ignore_index=True)
 
     # 导出为 excel
-    special_sp_excel = '让球sp小于1.4场次.xlsx'
+    current_date = datetime.now().date()
+    current_date_path = Path(str(current_date))
+    current_date_path.mkdir(exist_ok=True)
+    special_sp_excel = current_date_path / f'受让球sp小于{threshold_num}场次-{current_date}.xlsx'
     special_sp_df.to_excel(special_sp_excel, index=False)
 
     # 美化 excel
@@ -853,7 +858,10 @@ def get_double_draw():
     :return:
     """
     excel_file = r'all_games.xlsx'
-    output_xlsx_file = '双平-04-09-2.xlsx'
+    current_date = datetime.now().date()
+    current_date_path = Path(str(current_date))
+    current_date_path.mkdir(exist_ok=True)
+    output_xlsx_file = current_date_path / f'双平场次-{current_date}.xlsx'
 
     # 读取原始 Excel 文件
     df = pd.read_excel(excel_file)
@@ -1263,7 +1271,10 @@ def get_goat_matches():
     :return:
     """
     excel_file = r'all_games.xlsx'
-    output_xlsx_file = '7+-goat-matches.xlsx'
+    current_date = datetime.now().date()
+    current_date_path = Path(str(current_date))
+    current_date_path.mkdir(exist_ok=True)
+    output_xlsx_file = current_date_path / f'2-3球场次-{current_date}.xlsx'
 
     # 读取原始 Excel 文件
     df = pd.read_excel(excel_file)
@@ -1281,7 +1292,7 @@ def get_goat_matches():
             continue
 
         home_score, away_score = map(int, str(score).split(':'))
-        if home_score + away_score >= 7:
+        if home_score + away_score == 2 or home_score + away_score == 3:
             # 进球数是 2/3 球的局
             new_df = new_df.append(df.iloc[num:num + 2])
 
@@ -1290,6 +1301,22 @@ def get_goat_matches():
 
     # 美化 excel
     format_excel(output_xlsx_file)
+
+
+def auto_deal():
+    """
+        每日自动处理
+        直接运行
+    :return:
+    """
+    # 获取双平的场次
+    get_double_draw()
+    # 受让球sp小于1.4的场次
+    find_special_sp_matches(1.4)
+    # 受让球sp小于1.5的场次
+    find_special_sp_matches(1.5)
+    # 获取2-3球比赛场次
+    get_goat_matches()
 
 
 if __name__ == '__main__':
@@ -1302,14 +1329,14 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    outputs_excel = r'周三001-1.xlsx'
-    find_custom_sp_matches(outputs_excel,
-                           win_sp=1.72, win_sp_fluctuation=0.02,
-                           draw_sp=None, draw_sp_fluctuation=None,
-                           lose_sp=None, lose_sp_fluctuation=None,
-                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
-                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-                           handicap_lose_sp=1.83, handicap_lose_sp_fluctuation=0.02)
+    # outputs_excel = r'周三001-1.xlsx'
+    # find_custom_sp_matches(outputs_excel,
+    #                        win_sp=1.72, win_sp_fluctuation=0.02,
+    #                        draw_sp=None, draw_sp_fluctuation=None,
+    #                        lose_sp=None, lose_sp_fluctuation=None,
+    #                        handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+    #                        handicap_lose_sp=1.83, handicap_lose_sp_fluctuation=0.02)
 
     # 筛选特殊 sp 值的场次
     # 让球sp小于1.5的场次
@@ -1333,7 +1360,7 @@ if __name__ == '__main__':
     #                               sheet_name="all",
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
 
-    # 获取双平的比赛数量
+    # 获取双平的比赛场次
     # get_double_draw()
 
     # 获取比赛中负-让负的比赛场次
@@ -1365,3 +1392,5 @@ if __name__ == '__main__':
 
     # 获取进球数的分布
     # get_goat_matches()
+
+    auto_deal()

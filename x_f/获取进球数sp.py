@@ -96,7 +96,7 @@ def crawling_goats():
     }
 
     today = time.strftime('%Y-%m-%d')
-    tm_rng = pd.date_range(end=today, periods=30, freq='D')
+    tm_rng = pd.date_range(end=today, periods=3, freq='D')
     print(f'tm_rng: {tm_rng}')
 
     all_data = []
