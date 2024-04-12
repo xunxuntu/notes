@@ -564,6 +564,8 @@ def find_custom_sp_matches(custom_sp_excel,
     :return:
     """
     xlsx_file = r'all_games.xlsx'
+    # xlsx_file = r'澳超0412.xlsx'
+    # df = pd.read_excel(xlsx_file, sheet_name='all')
     df = pd.read_excel(xlsx_file, sheet_name='all')
 
     # 数据格式转换
@@ -852,12 +854,12 @@ def find_around_sp_matches():
 #     """
 
 
-def get_double_draw():
+def get_double_draw(excel_file=r'all_games.xlsx'):
     """
     获取比赛中双平的场次
     :return:
     """
-    excel_file = r'all_games.xlsx'
+    # excel_file = r'all_games.xlsx'
     current_date = datetime.now().date()
     current_date_path = Path(str(current_date))
     current_date_path.mkdir(exist_ok=True)
@@ -1319,7 +1321,75 @@ def auto_deal():
     get_goat_matches()
 
 
+def find_handicap_two_goats():
+    """
+        # 获取所有让2球的比赛
+    :return:
+    """
+    excel_file = r'all_games.xlsx'
+    output_xlsx_file = r'handicap_two_balls.xlsx'
+    output_xlsx_file_rang_ping = r'handicap_two_balls-让平局.xlsx'
+    output_xlsx_file_rang_fu = r'handicap_two_balls-让负局.xlsx'
+    output_xlsx_file_rang_sheng = r'handicap_two_balls-让胜局.xlsx'
+
+    # 读取原始 Excel 文件
+    df = pd.read_excel(excel_file)
+    # 新建一个 DataFrame 用于存储符合条件的数据
+    all_df = pd.DataFrame(columns=df.columns)
+    rang_ping_df = pd.DataFrame(columns=df.columns)
+    rang_fu_df = pd.DataFrame(columns=df.columns)
+    rang_sheng_df = pd.DataFrame(columns=df.columns)
+
+    num_range = range(0, len(df), 2)  # 适用于每行两个球队比赛的情况
+    for num in tqdm(num_range, desc='Processing'):  # 使用 tqdm 显示处理进度
+        handicap_ball = df.at[num + 1, '让球']
+        score = df.at[num, '比分']
+
+        if handicap_ball == ' -2' or handicap_ball == ' +2':
+            all_df = all_df.append(df.iloc[num:num + 2])
+            if pd.isna(score):
+                continue  # 跳过NaN值的处理
+            if score == 'VS':
+                continue
+            home_score, away_score = map(int, str(score).split(':'))
+
+            # 让球
+            # handicap_score = df.at[num + 1, '让球']
+            # if isinstance(handicap_score, str) and len(handicap_score) > 4:  # 过滤出 " 单关-3" 这样的字符
+            #     if handicap_score[:3] == " 单关":
+            #         handicap_score = int(handicap_score[3:])
+            # else:
+            #     handicap_score = int(handicap_score)
+
+            # if home_score + int(handicap_ball) == away_score:
+            #     # 让平局
+            #     rang_ping_df = rang_ping_df.append(df.iloc[num:num + 2])
+
+            # if home_score + int(handicap_ball) < away_score:
+            #     # 让负局
+            #     rang_fu_df = rang_fu_df.append(df.iloc[num:num + 2])
+            # #
+            if home_score + int(handicap_ball) > away_score:
+                # 让胜局
+                rang_sheng_df = rang_sheng_df.append(df.iloc[num:num + 2])
+
+    # 保存新文件
+    all_df.to_excel(output_xlsx_file, index=False)
+    # rang_ping_df.to_excel(output_xlsx_file_rang_ping, index=False)
+    # rang_fu_df.to_excel(output_xlsx_file_rang_fu, index=False)
+    rang_sheng_df.to_excel(output_xlsx_file_rang_sheng, index=False)
+
+    # # 美化 excel
+    format_excel(output_xlsx_file)
+    # format_excel(output_xlsx_file_rang_ping)
+    # format_excel(output_xlsx_file_rang_fu)
+    format_excel(output_xlsx_file_rang_sheng)
+
+
 if __name__ == '__main__':
+    # 获取所有让2球的比赛
+    # find_handicap_two_goats()
+
     # 场次分析
     # match_analysis(win_sp=2.2, win_sp_fluctuation=None,
     #                draw_sp=None, draw_sp_fluctuation=None,
@@ -1329,14 +1399,14 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    # outputs_excel = r'周三001-1.xlsx'
-    # find_custom_sp_matches(outputs_excel,
-    #                        win_sp=1.72, win_sp_fluctuation=0.02,
-    #                        draw_sp=None, draw_sp_fluctuation=None,
-    #                        lose_sp=None, lose_sp_fluctuation=None,
-    #                        handicap_win_sp=None, handicap_win_sp_fluctuation=None,
-    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-    #                        handicap_lose_sp=1.83, handicap_lose_sp_fluctuation=0.02)
+    outputs_excel = r'周五001-澳超-3.xlsx'
+    find_custom_sp_matches(outputs_excel,
+                           win_sp=1.45, win_sp_fluctuation=0.02,
+                           draw_sp=None, draw_sp_fluctuation=None,
+                           lose_sp=None, lose_sp_fluctuation=None,
+                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+                           handicap_lose_sp=2.28, handicap_lose_sp_fluctuation=0.02)
 
     # 筛选特殊 sp 值的场次
     # 让球sp小于1.5的场次
@@ -1393,4 +1463,4 @@ if __name__ == '__main__':
     # 获取进球数的分布
     # get_goat_matches()
 
-    auto_deal()
+    # auto_deal()

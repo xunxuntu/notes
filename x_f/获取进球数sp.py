@@ -158,7 +158,7 @@ def crawling_goats():
         result_df = result_df.append(pd.Series([None] * len(df.columns)), ignore_index=True)
 
     # 保存新文件
-    output_xlsx_file = 'goats-3.xlsx'
+    output_xlsx_file = 'goats.xlsx'
     result_df.to_excel(output_xlsx_file, index=False)
 
     # 美化excel

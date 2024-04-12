@@ -122,7 +122,6 @@ def search_func(x_date):
                 defeat.extend(('未开售', p[2].text))
                 defeat_index.extend(('未开售', p[2].attrs['class'][-1]))
 
-    """
     data['胜'], data['平'], data['负'] = victory, flat, defeat
     title['编号'], title['赛事'], title['开赛时间'], title['让球'] = serial_numbers, game_names, game_times, concede
     title['主队排名'], title['主队'], title['比分'], title['客队'], title['客队排名'] = i0, a0, a1, a2, i1
@@ -181,7 +180,7 @@ def search_func(x_date):
     wk.save()
     wk.close()
     app.quit()
-    """
+
 
 
 # def analysis_daily_data(x_date):
@@ -372,7 +371,7 @@ def search_func(x_date):
 
 
 def main():
-    x_date = '2024-04-08'
+    x_date = '2024-04-12'
     search_func(x_date)
     # analysis_daily_data(x_date)
 
