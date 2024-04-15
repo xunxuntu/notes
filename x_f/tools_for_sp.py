@@ -342,7 +342,7 @@ def search_specify_handicap_sp(xlsx_path, sheet_name, output_xlsx_file):
 
         # ## 保留 handicap_sp 小于1.5的场次
         # 先找出 handicap_sp 大于1.5的场次，再删除所有大于1.5的场次，剩下的就是小于1.5的场次了
-        if minimum_handicap_sp > 1.5:
+        if minimum_handicap_sp > 1.4:
             need_del_row.append(num)
             need_del_row.append(num + 1)
 
@@ -1399,14 +1399,14 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    outputs_excel = r'周五001-澳超-3.xlsx'
+    outputs_excel = r'002.xlsx'
     find_custom_sp_matches(outputs_excel,
-                           win_sp=1.45, win_sp_fluctuation=0.02,
+                           win_sp=1.79, win_sp_fluctuation=0.02,
                            draw_sp=None, draw_sp_fluctuation=None,
                            lose_sp=None, lose_sp_fluctuation=None,
                            handicap_win_sp=None, handicap_win_sp_fluctuation=None,
                            handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-                           handicap_lose_sp=2.28, handicap_lose_sp_fluctuation=0.02)
+                           handicap_lose_sp=1.74, handicap_lose_sp_fluctuation=0.02)
 
     # 筛选特殊 sp 值的场次
     # 让球sp小于1.5的场次
@@ -1418,7 +1418,7 @@ if __name__ == '__main__':
     #
     # # # 查找自定义范围 handicap_sp 值的场次
     # search_specify_handicap_sp(xlsx_path=r'./all_games.xlsx', sheet_name="all",
-    #                            output_xlsx_file='handicap_sp_low_1.5_game.xlsx')
+    #                            output_xlsx_file='让球低于1.4_game.xlsx')
 
     # 标记赛果的胜平负(正反路)
     # mark_pos_neg_outcome(xlsx_path='sp_around_1.5_game.xlsx',

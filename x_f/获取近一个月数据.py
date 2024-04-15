@@ -24,7 +24,7 @@ def lucky_dog():
     concede, victory, flat, defeat = [], [], [], []
     victory_index, flat_index, defeat_index = [], [], []
     today = time.strftime('%Y-%m-%d')
-    tm_rng = pd.date_range(end=today, periods=30, freq='D')
+    tm_rng = pd.date_range(end=today, periods=3, freq='D')
 
     date_list = [x.strftime('%F') for x in tm_rng]
     xlsx_name = '最近30天内所有比赛数据_' + str(date_list[0]) + '_' + str(date_list[-1]) + '_'
