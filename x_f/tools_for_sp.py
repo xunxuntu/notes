@@ -863,7 +863,7 @@ def get_double_draw(excel_file=r'all_games.xlsx'):
     current_date = datetime.now().date()
     current_date_path = Path(str(current_date))
     current_date_path.mkdir(exist_ok=True)
-    output_xlsx_file = current_date_path / f'双平场次-{current_date}.xlsx'
+    output_xlsx_file = current_date_path / f"{excel_file.split(':')[0]}-双平场次-{current_date}.xlsx"
 
     # 读取原始 Excel 文件
     df = pd.read_excel(excel_file)
@@ -1386,6 +1386,42 @@ def find_handicap_two_goats():
     format_excel(output_xlsx_file_rang_sheng)
 
 
+def find_float_sp_matches(low_threshold_num, high_threshold_num):
+    """
+        查找区间内受让 sp 值的比赛
+    :return:
+    """
+    xlsx_file = r'all_games.xlsx'
+    df = pd.read_excel(xlsx_file, sheet_name='all')
+
+    # 筛选 handicap_sp 值低于1.5的场次
+    # 查找 让胜 或者 让负 在低于 1.5 之下的df
+    # threshold_num = 1.4
+    special_sp_df = pd.DataFrame()
+    for i in range(1, len(df), 2):
+        # print(i)
+        # print(df.loc[i, '负'])
+        # print(type(df.loc[i, '负']))
+        if low_threshold_num <= df.loc[i, '负'] <= high_threshold_num or\
+                low_threshold_num <= df.loc[i, '胜'] <= high_threshold_num:
+            special_sp_df = special_sp_df.append([df.loc[i - 1], df.loc[i]], ignore_index=True)
+
+    # 导出为 excel
+    current_date = datetime.now().date()
+    current_date_path = Path(str(current_date))
+    current_date_path.mkdir(exist_ok=True)
+    special_sp_excel = current_date_path / f'受让球sp大于{low_threshold_num}-小于{high_threshold_num} 场次-{current_date}.xlsx'
+    special_sp_df.to_excel(special_sp_excel, index=False)
+
+    # 美化 excel
+    format_excel(special_sp_excel)
+
+    # handicap sp 正反路标记统计
+    mark_handicap_pos_neg_outcome(xlsx_path=special_sp_excel,
+                                  sheet_name="Sheet1",
+                                  output_xlsx_file=special_sp_excel)
+
+
 if __name__ == '__main__':
     # 获取所有让2球的比赛
     # find_handicap_two_goats()
@@ -1399,23 +1435,29 @@ if __name__ == '__main__':
     #                handicap_lose_sp=1.48, handicap_lose_sp_fluctuation=None)
 
     # 筛选自定义范围 sp 值的场次
-    outputs_excel = r'002.xlsx'
-    find_custom_sp_matches(outputs_excel,
-                           win_sp=1.79, win_sp_fluctuation=0.02,
-                           draw_sp=None, draw_sp_fluctuation=None,
-                           lose_sp=None, lose_sp_fluctuation=None,
-                           handicap_win_sp=None, handicap_win_sp_fluctuation=None,
-                           handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
-                           handicap_lose_sp=1.74, handicap_lose_sp_fluctuation=0.02)
+    # outputs_excel = r'002.xlsx'
+    # find_custom_sp_matches(outputs_excel,
+    #                        win_sp=1.79, win_sp_fluctuation=0.02,
+    #                        draw_sp=None, draw_sp_fluctuation=None,
+    #                        lose_sp=None, lose_sp_fluctuation=None,
+    #                        handicap_win_sp=None, handicap_win_sp_fluctuation=None,
+    #                        handicap_draw_sp=None, handicap_draw_sp_fluctuation=None,
+    #                        handicap_lose_sp=1.74, handicap_lose_sp_fluctuation=0.02)
 
     # 筛选特殊 sp 值的场次
-    # 让球sp小于1.5的场次
-    # find_special_sp_matches()
+    # 查找受让球sp小于1.4的场次
+    # find_special_sp_matches(1.4)
+
+    # 查找受让球sp小于1.5的场次
+    # find_special_sp_matches(1.5)
+
+    # 查找受让球sp小于1.5，大于1.4的场次
+    # find_float_sp_matches(1.4, 1.5)
 
     # # # 查找自定义范围 sp 值的场次
     # search_specify_sp(xlsx_path=r'./all_games.xlsx', sheet_name="all",
     #                   output_xlsx_file='sp_around_1.5_game.xlsx')
-    #
+
     # # # 查找自定义范围 handicap_sp 值的场次
     # search_specify_handicap_sp(xlsx_path=r'./all_games.xlsx', sheet_name="all",
     #                            output_xlsx_file='让球低于1.4_game.xlsx')
@@ -1431,7 +1473,8 @@ if __name__ == '__main__':
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
 
     # 获取双平的比赛场次
-    # get_double_draw()
+
+    get_double_draw(r'受让球sp大于1.4-小于1.5 场次-2024-04-24.xlsx')
 
     # 获取比赛中负-让负的比赛场次
     # get_loss_handicap_loss()
