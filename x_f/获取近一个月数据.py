@@ -1,6 +1,6 @@
 """
 查询过去30天内所有的胜负情况
-    有用
+    有用哈
 """
 import requests
 import time
