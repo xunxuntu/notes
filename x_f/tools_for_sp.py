@@ -1473,8 +1473,7 @@ if __name__ == '__main__':
     #                               output_xlsx_file='all_games_marked_handicap_pos_neg.xlsx')
 
     # 获取双平的比赛场次
-
-    get_double_draw(r'受让球sp大于1.4-小于1.5 场次-2024-04-24.xlsx')
+    # get_double_draw(r'受让球sp大于1.4-小于1.5 场次-2024-04-24.xlsx')
 
     # 获取比赛中负-让负的比赛场次
     # get_loss_handicap_loss()
@@ -1498,7 +1497,7 @@ if __name__ == '__main__':
     # get_handicap_draw()
 
     # 获取胜or负sp小于1.4的比赛场次
-    # find_around_sp_matches()
+    find_around_sp_matches()
 
     # 获取让平或者2球的比赛场次
     # find_rangp_2_ball_matches()
